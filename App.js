@@ -1,21 +1,59 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View, FlatList, Button } from "react-native";
+
+import TodoItem from "./components/TodoItem";
+import TodoInput from "./components/TodoInput";
 
 export default function App() {
+  const [todo, setTodo] = useState("");
+  const [allTodo, setAllTodo] = useState([]);
+  const [isAddMod, setIsAddMod] = useState(false);
+  const todoInputHandler = (enteredText) => {
+    setTodo(enteredText);
+  };
+
+  const addTodo = () => {
+    setAllTodo((currentTodos) => [
+      ...allTodo,
+      { id: Math.random().toString(), value: todo },
+    ]);
+    setIsAddMod(false);
+    setTodo("");
+  };
+
+  const onDelete = (todoId) => {
+    setAllTodo((currentTodos) => {
+      return currentTodos.filter((i) => i.id !== todoId);
+    });
+  };
+  const cancelTodo = () => {
+    setIsAddMod(false);
+  };
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={styles.screen}>
+      <Button title="add new todo" onPress={() => setIsAddMod(true)} />
+      <TodoInput
+        isAddMod={isAddMod}
+        todoInputHandler={todoInputHandler}
+        addTodo={addTodo}
+        todo={todo}
+        cancelTodo={cancelTodo}
+      />
+      <FlatList
+        data={allTodo}
+        renderItem={(itemData) => (
+          <TodoItem
+            itemData={itemData}
+            onDelete={onDelete.bind(this, itemData.item.id)}
+          />
+        )}
+      ></FlatList>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  screen: {
+    padding: 50,
   },
 });
